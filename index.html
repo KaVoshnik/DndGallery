@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Архив трофеев</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a140d;
+      --ink-deep: #120d08;
+      --parchment: #f4e8d0;
+      --parchment-dim: #e8d8b4;
+      --gold: #a9842c;
+      --gold-bright: #d4af37;
+      --maroon: #5c1f1f;
+      --forest: #3a5246;
+      --line: rgba(169, 132, 44, 0.35);
+
+      --c-common: #8a8378;
+      --c-uncommon: #3a7a4a;
+      --c-rare: #3169b0;
+      --c-veryrare: #7a3fa0;
+      --c-legendary: #c77b1f;
+      --c-artifact: #a31f1f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background:
+        radial-gradient(ellipse at 20% 0%, rgba(169, 132, 44, 0.08), transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(92, 31, 31, 0.10), transparent 50%),
+        var(--ink);
+      color: var(--parchment);
+      font-family: 'EB Garamond', serif;
+      min-height: 100vh;
+      background-attachment: fixed;
+    }
+
+    /* subtle paper grain via layered noise-ish gradients */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.05;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, #000 2px, #000 3px);
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 48px 32px 96px;
+    }
+
+    /* ---------- HEADER ---------- */
+    header {
+      text-align: center;
+      margin-bottom: 52px;
+      position: relative;
+    }
+
+    .eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: 0.02em;
+      color: var(--parchment);
+      text-shadow: 0 0 30px rgba(212, 175, 55, 0.25);
+    }
+
+    .ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 18px;
+      color: var(--gold);
+    }
+
+    .ornament .rule {
+      height: 1px;
+      width: 120px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .ornament svg {
+      width: 18px;
+      height: 18px;
+      opacity: 0.9;
+    }
+
+    .subtitle {
+      margin-top: 16px;
+      font-style: italic;
+      color: var(--parchment-dim);
+      font-size: 17px;
+      opacity: 0.75;
+    }
+
+    /* ---------- CONTROLS ---------- */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding: 18px 22px;
+      background: rgba(244, 232, 208, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1 1 260px;
+      min-width: 220px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--gold);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    #search {
+      width: 100%;
+      background: var(--ink-deep);
+      border: 1px solid var(--line);
+      color: var(--parchment);
+      font-family: 'EB Garamond', serif;
+      font-size: 16px;
+      padding: 11px 14px 11px 38px;
+      border-radius: 3px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    #search::placeholder {
+      color: rgba(244, 232, 208, 0.4);
+      font-style: italic;
+    }
+
+    #search:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(169, 132, 44, 0.15);
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--ink-deep) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0L5 6L10 0Z" fill="%23a9842c"/></svg>') no-repeat right 12px center;
+      border: 1px solid var(--line);
+      color: var(--parchment);
+      font-family: 'EB Garamond', serif;
+      font-size: 15px;
+      padding: 10px 32px 10px 14px;
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+
+    select:focus,
+    select:hover {
+      border-color: var(--gold);
+    }
+
+    .count {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      opacity: 0.85;
+      white-space: nowrap;
+    }
+
+    /* ---------- GRID ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 28px;
+      perspective: 1800px;
+    }
+
+    .empty-state {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--parchment-dim);
+      font-style: italic;
+      opacity: 0.7;
+      font-size: 18px;
+    }
+
+    /* ---------- CARD (medallion) ---------- */
+    .card {
+      aspect-ratio: 3/4;
+      cursor: pointer;
+      border-radius: 6px;
+      background: linear-gradient(160deg, #241a10, #1a120a);
+      border: 2px solid var(--rarity-color, var(--gold));
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.4),
+        0 10px 24px rgba(0, 0, 0, 0.45),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      transition: transform .35s cubic-bezier(.2, .8, .2, 1), box-shadow .35s;
+      transform-style: preserve-3d;
+    }
+
+    .card:hover {
+      transform: translateY(-6px) rotateX(4deg) rotateY(-4deg);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.4),
+        0 22px 40px rgba(0, 0, 0, 0.55),
+        0 0 24px -4px var(--rarity-color, var(--gold)),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .card:focus-visible {
+      outline: 2px solid var(--gold-bright);
+      outline-offset: 3px;
+    }
+
+    .card-inner-frame {
+      position: absolute;
+      inset: 8px;
+      border: 1px solid var(--rarity-color, var(--gold));
+      opacity: 0.55;
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    .card-inner-frame::before,
+    .card-inner-frame::after,
+    .card-corner-tl,
+    .card-corner-br {
+      content: "";
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border: 1px solid var(--rarity-color, var(--gold));
+    }
+
+    .card-corner-tl {
+      top: -1px;
+      left: -1px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .card-corner-br {
+      bottom: -1px;
+      right: -1px;
+      border-left: none;
+      border-top: none;
+    }
+
+    .card-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.92;
+    }
+
+    .card-img-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--rarity-color, var(--gold));
+      opacity: 0.35;
+    }
+
+    .card-img-fallback svg {
+      width: 42%;
+      height: 42%;
+    }
+
+    .card-shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(26, 20, 13, 0) 35%, rgba(18, 13, 8, 0.92) 100%);
+    }
+
+    .card-rarity-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--rarity-color, var(--gold));
+      box-shadow: 0 0 8px var(--rarity-color, var(--gold));
+    }
+
+    .card-type-tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--parchment-dim);
+      opacity: 0.75;
+    }
+
+    .card-footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 14px 14px 13px;
+    }
+
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--parchment);
+      line-height: 1.25;
+      margin: 0 0 4px;
+    }
+
+    .card-sub {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--parchment-dim);
+      opacity: 0.7;
+    }
+
+    /* shimmer sweep on hover */
+    .card-shimmer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.10) 50%, transparent 60%);
+      transform: translateX(-120%);
+      pointer-events: none;
+    }
+
+    .card:hover .card-shimmer {
+      transform: translateX(120%);
+      transition: transform .9s ease;
+    }
+
+    /* ---------- MODAL (opened ledger page) ---------- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 7, 4, 0.75);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 760px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 12%),
+        var(--parchment);
+      color: var(--ink);
+      border-radius: 6px;
+      position: relative;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.3);
+      transform: scale(0.85) rotateX(-8deg);
+      opacity: 0;
+      transition: transform .4s cubic-bezier(.2, .8, .2, 1), opacity .3s;
+      transform-origin: center center;
+    }
+
+    .modal-overlay.open .modal {
+      transform: scale(1) rotateX(0deg);
+      opacity: 1;
+    }
+
+    .modal::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border: 1.5px solid var(--rarity-color, var(--gold));
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      opacity: 0.6;
+      transition: opacity .2s, transform .2s, background .2s;
+    }
+
+    .modal-close:hover {
+      opacity: 1;
+      background: rgba(26, 20, 13, 0.08);
+      transform: rotate(90deg);
+    }
+
+    .modal-hero {
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .modal-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .modal-hero-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #241a10, #1a120a);
+      color: var(--rarity-color, var(--gold));
+    }
+
+    .modal-hero-fallback svg {
+      width: 80px;
+      height: 80px;
+      opacity: 0.5;
+    }
+
+    .modal-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 55%, var(--parchment) 100%);
+    }
+
+    .modal-seal {
+      position: absolute;
+      bottom: -26px;
+      left: 38px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, var(--rarity-color, var(--gold)), color-mix(in srgb, var(--rarity-color, var(--gold)) 60%, black));
+      border: 3px solid var(--parchment);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+    }
+
+    .modal-seal svg {
+      width: 30px;
+      height: 30px;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .modal-body {
+      padding: 44px 40px 38px;
+    }
+
+    .modal-rarity-line {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--rarity-color, var(--gold));
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin: 0 0 8px;
+      color: var(--ink);
+    }
+
+    .modal-type {
+      font-style: italic;
+      font-size: 16px;
+      color: var(--maroon);
+      margin-bottom: 22px;
+      opacity: 0.85;
+    }
+
+    .modal-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 22px 0;
+      opacity: 0.5;
+    }
+
+    .modal-divider .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--ink), transparent);
+    }
+
+    .modal-divider svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .modal-desc {
+      font-size: 18px;
+      line-height: 1.75;
+      color: var(--ink);
+      text-align: left;
+    }
+
+    .modal-desc::first-letter {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 48px;
+      float: left;
+      line-height: 0.8;
+      padding: 8px 8px 0 0;
+      color: var(--maroon);
+    }
+
+    /* ---------- FOOTER ---------- */
+    footer {
+      text-align: center;
+      margin-top: 64px;
+      color: var(--parchment-dim);
+      opacity: 0.5;
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    /* ---------- SCROLLBAR (modal) ---------- */
+    .modal::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .modal::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .modal::-webkit-scrollbar-thumb {
+      background: var(--gold);
+      border-radius: 4px;
+      opacity: 0.6;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width:640px) {
+      .page {
+        padding: 32px 16px 64px;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filters {
+        justify-content: space-between;
+      }
+
+      select {
+        flex: 1;
+      }
+
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 18px;
+      }
+
+      .modal-body {
+        padding: 36px 24px 28px;
+      }
+
+      .modal-title {
+        font-size: 24px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="page">
+
+    <header>
+      <div class="eyebrow">Гильдия искателей · Реестр находок</div>
+      <h1>Архив Трофеев</h1>
+      <div class="ornament">
+        <span class="rule"></span>
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6L8 13.8 2 9.2h7.6z" />
+        </svg>
+        <span class="rule"></span>
+      </div>
+      <p class="subtitle">Каталог предметов, добытых в походах и хранимых для потомков</p>
+    </header>
+
+    <div class="controls">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" id="search" placeholder="Искать предмет по названию…">
+      </div>
+      <div class="filters">
+        <select id="filter-rarity">
+          <option value="">Любая редкость</option>
+          <option value="common">Обычный</option>
+          <option value="uncommon">Необычный</option>
+          <option value="rare">Редкий</option>
+          <option value="very-rare">Очень редкий</option>
+          <option value="legendary">Легендарный</option>
+          <option value="artifact">Артефакт</option>
+        </select>
+        <select id="filter-type">
+          <option value="">Любой тип</option>
+          <option value="weapon">Оружие</option>
+          <option value="armor">Доспех</option>
+          <option value="artifact">Артефакт</option>
+          <option value="wondrous">Чудесный предмет</option>
+          <option value="potion">Зелье</option>
+          <option value="scroll">Свиток</option>
+        </select>
+      </div>
+      <div class="count" id="count">— предметов</div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <footer>Записано писцами гильдии · да хранится в веках</footer>
+  </div>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modal-close" aria-label="Закрыть">✕</button>
+      <div class="modal-hero" id="modal-hero"></div>
+      <div class="modal-seal" id="modal-seal"></div>
+      <div class="modal-body">
+        <div class="modal-rarity-line" id="modal-rarity-line"></div>
+        <h2 class="modal-title" id="modal-title"></h2>
+        <div class="modal-type" id="modal-type"></div>
+        <div class="modal-divider">
+          <span class="line"></span>
+          <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--gold)">
+            <path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6L8 13.8 2 9.2h7.6z" />
+          </svg>
+          <span class="line"></span>
+        </div>
+        <p class="modal-desc" id="modal-desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const RARITY_META = {
+      'common': { label: 'Обычный', color: '#8a8378' },
+      'uncommon': { label: 'Необычный', color: '#3a7a4a' },
+      'rare': { label: 'Редкий', color: '#3169b0' },
+      'very-rare': { label: 'Очень редкий', color: '#7a3fa0' },
+      'legendary': { label: 'Легендарный', color: '#c77b1f' },
+      'artifact': { label: 'Артефакт', color: '#a31f1f' }
+    };
+
+    const TYPE_META = {
+      'weapon': 'Оружие',
+      'armor': 'Доспех',
+      'artifact': 'Артефакт',
+      'wondrous': 'Чудесный предмет',
+      'potion': 'Зелье',
+      'scroll': 'Свиток'
+    };
+
+    const ITEM_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6.5 17.5L3 21M14.5 6.5l3-3 3 3-3 3M5 13l6-6 4 4-6 6-4-4z"/></svg>`;
+    const SEAL_ICON = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6L8 13.8 2 9.2h7.6z"/></svg>`;
+
+    let ITEMS = [];
+
+    async function loadItems() {
+      try {
+        const res = await fetch('items.json');
+        ITEMS = await res.json();
+      } catch (e) {
+        console.error('Не удалось загрузить items.json', e);
+        ITEMS = [];
+      }
+      render();
+    }
+
+    function render() {
+      const grid = document.getElementById('grid');
+      const search = document.getElementById('search').value.trim().toLowerCase();
+      const rarityFilter = document.getElementById('filter-rarity').value;
+      const typeFilter = document.getElementById('filter-type').value;
+
+      let filtered = ITEMS.filter(item => {
+        const matchesSearch = !search || item.name.toLowerCase().includes(search);
+        const matchesRarity = !rarityFilter || item.rarity === rarityFilter;
+        const matchesType = !typeFilter || item.type === typeFilter;
+        return matchesSearch && matchesRarity && matchesType;
+      });
+
+      document.getElementById('count').textContent =
+        filtered.length === ITEMS.length
+          ? `${ITEMS.length} предметов`
+          : `${filtered.length} из ${ITEMS.length}`;
+
+      grid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state">Свиток пуст — по таким приметам в архиве ничего не найдено</div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const meta = RARITY_META[item.rarity] || RARITY_META.common;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.setProperty('--rarity-color', meta.color);
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `Открыть предмет: ${item.name}`);
+
+        card.innerHTML = `
+      <div class="card-inner-frame"><span class="card-corner-tl"></span><span class="card-corner-br"></span></div>
+      ${item.image ? `<img class="card-img" src="${item.image}" alt="${item.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+      <div class="card-img-fallback" style="${item.image ? 'display:none;' : 'display:flex;'}">${ITEM_ICON}</div>
+      <div class="card-shimmer"></div>
+      <div class="card-shade"></div>
+      <span class="card-rarity-tag"></span>
+      <span class="card-type-tag">${TYPE_META[item.type] || item.type}</span>
+      <div class="card-footer">
+        <p class="card-name">${item.name}</p>
+        <p class="card-sub">${item.subtype || ''}</p>
+      </div>
+    `;
+
+        card.addEventListener('click', () => openModal(item));
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(item); }
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    function openModal(item) {
+      const meta = RARITY_META[item.rarity] || RARITY_META.common;
+      const overlay = document.getElementById('modal-overlay');
+      const modal = document.getElementById('modal');
+
+      modal.style.setProperty('--rarity-color', meta.color);
+
+      document.getElementById('modal-hero').innerHTML = item.image
+        ? `<img src="${item.image}" alt="${item.name}" onerror="this.parentElement.innerHTML='<div class=&quot;modal-hero-fallback&quot;>${ITEM_ICON}</div>'">`
+        : `<div class="modal-hero-fallback">${ITEM_ICON}</div>`;
+
+      document.getElementById('modal-seal').innerHTML = SEAL_ICON;
+      document.getElementById('modal-rarity-line').textContent = meta.label;
+      document.getElementById('modal-title').textContent = item.name;
+      document.getElementById('modal-type').textContent = item.subtype || TYPE_META[item.type] || '';
+      document.getElementById('modal-desc').textContent = item.description || '';
+
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('modal-close').focus();
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target.id === 'modal-overlay') closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    document.getElementById('search').addEventListener('input', render);
+    document.getElementById('filter-rarity').addEventListener('change', render);
+    document.getElementById('filter-type').addEventListener('change', render);
+
+    loadItems();
+  </script>
+
+</body>
+
+</html>
