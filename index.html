@@ -416,7 +416,8 @@
       width: 100%;
       max-width: 760px;
       max-height: 88vh;
-      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 12%),
         var(--parchment);
@@ -428,6 +429,7 @@
       opacity: 0;
       transition: transform .4s cubic-bezier(.2, .8, .2, 1), opacity .3s;
       transform-origin: center center;
+      overflow: hidden;
     }
 
     .modal-overlay.open .modal {
@@ -435,13 +437,10 @@
       opacity: 1;
     }
 
-    .modal::before {
-      content: "";
-      position: absolute;
-      inset: 14px;
-      border: 1.5px solid var(--rarity-color, var(--gold));
-      border-radius: 3px;
-      pointer-events: none;
+    .modal-scroll {
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
     }
 
     .modal-close {
@@ -607,15 +606,15 @@
     }
 
     /* ---------- SCROLLBAR (modal) ---------- */
-    .modal::-webkit-scrollbar {
+    .modal-scroll::-webkit-scrollbar {
       width: 8px;
     }
 
-    .modal::-webkit-scrollbar-track {
+    .modal-scroll::-webkit-scrollbar-track {
       background: transparent;
     }
 
-    .modal::-webkit-scrollbar-thumb {
+    .modal-scroll::-webkit-scrollbar-thumb {
       background: var(--gold);
       border-radius: 4px;
       opacity: 0.6;
@@ -737,20 +736,22 @@
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal" id="modal" role="dialog" aria-modal="true">
       <button class="modal-close" id="modal-close" aria-label="Закрыть">✕</button>
-      <div class="modal-hero" id="modal-hero"></div>
-      <div class="modal-body">
-        <div class="modal-seal" id="modal-seal"></div>
-        <div class="modal-rarity-line" id="modal-rarity-line"></div>
-        <h2 class="modal-title" id="modal-title"></h2>
-        <div class="modal-type" id="modal-type"></div>
-        <div class="modal-divider">
-          <span class="line"></span>
-          <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--gold)">
-            <path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6L8 13.8 2 9.2h7.6z" />
-          </svg>
-          <span class="line"></span>
+      <div class="modal-scroll">
+        <div class="modal-hero" id="modal-hero"></div>
+        <div class="modal-body">
+          <div class="modal-seal" id="modal-seal"></div>
+          <div class="modal-rarity-line" id="modal-rarity-line"></div>
+          <h2 class="modal-title" id="modal-title"></h2>
+          <div class="modal-type" id="modal-type"></div>
+          <div class="modal-divider">
+            <span class="line"></span>
+            <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--gold)">
+              <path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6L8 13.8 2 9.2h7.6z" />
+            </svg>
+            <span class="line"></span>
+          </div>
+          <p class="modal-desc" id="modal-desc"></p>
         </div>
-        <p class="modal-desc" id="modal-desc"></p>
       </div>
     </div>
   </div>
