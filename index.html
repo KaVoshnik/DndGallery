@@ -130,21 +130,24 @@
     /* ---------- CONTROLS ---------- */
     .controls {
       display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 10px;
       margin-bottom: 40px;
-      padding: 18px 22px;
+      padding: 16px 22px;
       background: rgba(244, 232, 208, 0.04);
       border: 1px solid var(--line);
       border-radius: 4px;
     }
 
+    .controls-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
     .search-wrap {
       position: relative;
-      flex: 1 1 260px;
-      min-width: 220px;
+      flex: 1;
     }
 
     .search-wrap svg {
@@ -630,16 +633,7 @@
         padding: 32px 16px 64px;
       }
 
-      .controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .filters {
-        justify-content: space-between;
-      }
-
-      select {
+      .controls-row select {
         flex: 1;
       }
 
@@ -709,7 +703,7 @@
         </svg>
         <input type="text" id="search" placeholder="Искать предмет по названию…">
       </div>
-      <div class="filters">
+      <div class="controls-row">
         <select id="filter-rarity">
           <option value="">Любая редкость</option>
           <option value="common">Обычный</option>
@@ -728,8 +722,8 @@
           <option value="potion">Зелье</option>
           <option value="scroll">Свиток</option>
         </select>
+        <div class="count" id="count">— предметов</div>
       </div>
-      <div class="count" id="count">— предметов</div>
     </div>
 
     <div class="grid" id="grid"></div>
